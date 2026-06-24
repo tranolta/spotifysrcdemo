@@ -1,0 +1,101 @@
+/* Spotify Rights Center · design tokens
+ * Spotify palette ONLY — green #1ED760, white #FFFFFF, near-black #121212,
+ * plus the neutral gray ramp between black and white (no other hues).
+ * Green is the primary action color, always with black text on it.
+ * Type: Hanken Grotesk (geometric-sans stand-in for Spotify Mix / Circular).
+ */
+
+:root {
+  /* — Surface (white → gray ramp) — */
+  --color-paper:        oklch(100% 0 0);         /* #FFFFFF */
+  --color-paper-2:      oklch(97.5% 0 0);
+  --color-paper-3:      oklch(93.5% 0 0);
+  --color-ink:          oklch(20% 0 0);          /* #121212 Spotify black */
+  --color-ink-soft:     oklch(40% 0 0);
+  --color-ink-faint:    oklch(56% 0 0);
+  --color-line:         oklch(90% 0 0);
+
+  /* — Spotify green (primary action / positive) — */
+  --color-green:        oklch(78% 0.21 150);     /* #1ED760 */
+  --color-green-deep:   oklch(70% 0.19 152);     /* hover */
+
+  /* — Dark secondary (repurposed token name; resolves to Spotify black) — */
+  --color-violet:       oklch(20% 0 0);          /* charts/secondary series = #121212 */
+  --color-violet-deep:  oklch(13% 0 0);
+  --color-violet-ink:   oklch(99% 0 0);
+
+  /* — On-colour text — */
+  --color-on-green:     oklch(20% 0 0);          /* black text on green (Spotify) */
+  --color-on-violet:    oklch(100% 0 0);         /* white text on black */
+
+  /* — Status, expressed in green / gray / black only — */
+  --color-ok:           oklch(78% 0.21 150);     /* cleared = green */
+  --color-warn:         oklch(74% 0 0);          /* review/pending = neutral gray */
+  --color-warn-deep:    oklch(44% 0 0);
+  --color-danger:       oklch(20% 0 0);          /* block/dispute/rejected = black */
+  --color-danger-deep:  oklch(13% 0 0);
+  --color-info:         oklch(56% 0 0);
+
+  /* — App chrome (Spotify-black sidebar over light content) — */
+  --color-shell:        oklch(20% 0 0);          /* #121212 */
+  --color-shell-2:      oklch(25% 0 0);
+  --color-shell-line:   oklch(30% 0 0);
+  --color-shell-label:  oklch(60% 0 0);
+  --color-shell-text:   oklch(72% 0 0);
+  --color-shell-text-2: oklch(99% 0 0);
+  --color-ink-hover:    oklch(30% 0 0);
+
+  /* — Elevation / overlay (neutral black alphas) — */
+  --shadow-soft: 0 1px 2px oklch(0% 0 0 / 0.08);
+  --shadow-key:  0 1px 2px oklch(0% 0 0 / 0.25);
+  --shadow-drawer: -20px 0 60px oklch(0% 0 0 / 0.18);
+  --shadow-modal:  0 30px 80px oklch(0% 0 0 / 0.22);
+  --scrim:       oklch(0% 0 0 / 0.5);
+
+  /* — Focus ring: dark for contrast on light surfaces (green on white fails 3:1) — */
+  --color-focus:        oklch(20% 0 0);
+
+  /* — Type — */
+  --font-display: "Hanken Grotesk", system-ui, -apple-system, sans-serif;
+  --font-body:    "Hanken Grotesk", system-ui, -apple-system, sans-serif;
+
+  --text-xs:      0.75rem;
+  --text-sm:      0.875rem;
+  --text-base:    1.0625rem;
+  --text-lg:      1.25rem;
+  --text-xl:      1.5rem;
+  --text-2xl:     2rem;
+  --text-3xl:     clamp(2.25rem, 1.6rem + 2.6vw, 3.25rem);
+  --text-display: clamp(3rem, 1.2rem + 7.4vw, 6.5rem);
+
+  --weight-body:    400;
+  --weight-medium:  500;
+  --weight-semi:    600;
+  --weight-black:   800;
+
+  --measure: 64ch;
+
+  /* — Space (4pt) — */
+  --space-3xs: 0.25rem;
+  --space-2xs: 0.5rem;
+  --space-xs:  0.75rem;
+  --space-sm:  1rem;
+  --space-md:  1.5rem;
+  --space-lg:  2.5rem;
+  --space-xl:  4rem;
+  --space-2xl: 6rem;
+  --space-3xl: 9rem;
+
+  /* — Radius (Spotify rounded language) — */
+  --radius-sm:   8px;
+  --radius-md:   14px;
+  --radius-lg:   24px;
+  --radius-pill: 9999px;
+
+  /* — Motion — */
+  --dur-fast:   150ms;
+  --dur-normal: 320ms;
+  --ease-out:    cubic-bezier(0.16, 1, 0.3, 1);
+  --ease-in:     cubic-bezier(0.4, 0, 1, 1);
+  --ease-in-out: cubic-bezier(0.65, 0, 0.35, 1);
+}

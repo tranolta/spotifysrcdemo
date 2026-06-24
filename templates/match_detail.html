@@ -1,0 +1,67 @@
+{% extends "base.html" %}
+{% from "_macros.html" import status_pill, conf, claim_tag with context %}
+{% block title %}{{ m.upload_title }} · SRC{% endblock %}
+{% block page_title %}Match detail{% endblock %}
+{% block page_sub %}Match #{{ m.id }}{% endblock %}
+
+{% block content %}
+<div class="detail-top">
+  <a class="back" href="{{ url_for('matches') }}">← Match queue</a>
+  <a class="btn btn--green btn--sm" href="{{ url_for('respond_notice', match_id=m.id) }}" target="_blank" rel="noopener">Respondent notice ↗</a>
+</div>
+
+<div class="detail">
+  <div class="detail__main">
+    <div class="panel">
+      <div class="panel__head">
+        <div>
+          <p class="u-label">{{ m.content_type }} · {{ m.source }}</p>
+          <h2>{{ m.upload_title }}</h2>
+        </div>
+        <div class="right">{{ status_pill(m.status) }}</div>
+      </div>
+      <div class="kvs kvs--pad">
+        <div class="kv"><span>Uploader</span><b>@{{ m.uploader }}</b></div>
+        <div class="kv"><span>Confidence</span><b>{{ m.match_pct }}% · segment {{ m.segment }}</b></div>
+        <div class="kv"><span>Claim type</span><b>{{ claim_tag(m.claim_type) }}</b></div>
+        <div class="kv"><span>Territory</span><b>{{ m.markets | territory }}</b></div>
+        <div class="kv"><span>Monthly streams</span><b>{{ m.monthly_streams | compact }}</b></div>
+        <div class="kv"><span>Revenue impact</span><b>{{ m.revenue_cents | money }}/mo</b></div>
+        <div class="kv"><span>Reviewer</span><b>{{ m.reviewer or 'Unassigned' }}</b></div>
+        <div class="kv"><span>Detected</span><b>{{ m.detected_at | reltime }}</b></div>
+      </div>
+    </div>
+
+    {% if m.status == 'pending' %}
+    <div class="panel actions-panel">
+      <div class="panel__head"><div><h2>Resolve</h2></div></div>
+      <div class="actions-row">
+        <form method="post" action="{{ url_for('match_action', match_id=m.id) }}">
+          <button class="btn btn--green" name="action" value="approve" type="submit">Approve claim</button>
+        </form>
+        <form method="post" action="{{ url_for('match_action', match_id=m.id) }}">
+          <button class="btn btn--ghost" name="action" value="reject" type="submit">Reject match</button>
+        </form>
+        <form method="post" action="{{ url_for('match_action', match_id=m.id) }}">
+          <button class="btn btn--ghost" name="action" value="dispute" type="submit">Open dispute</button>
+        </form>
+      </div>
+    </div>
+    {% endif %}
+  </div>
+
+  <div class="detail__side">
+    <div class="panel">
+      <div class="panel__head"><div><p class="u-label">Matched reference</p><h2>{{ m.asset_title }}</h2></div></div>
+      <div class="kvs kvs--pad">
+        <div class="kv"><span>Artist</span><b>{{ m.asset_artist }}</b></div>
+        <div class="kv"><span>ISRC</span><b class="mono">{{ m.asset_isrc }}</b></div>
+        <div class="kv"><span>ISWC</span><b class="mono">{{ m.asset_iswc or '—' }}</b></div>
+        <div class="kv"><span>Spotify</span><b><a href="https://open.spotify.com/track/{{ m.asset_spotify_id }}" target="_blank" rel="noopener">open.spotify.com ↗</a></b></div>
+        <div class="kv"><span>Rights</span><b>{{ m.asset_rights }}</b></div>
+        <div class="kv"><span>Ownership</span><b>{{ m.asset_ownership }}%</b></div>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

@@ -1,0 +1,62 @@
+{% extends "base.html" %}
+{% from "_macros.html" import burndown with context %}
+{% block title %}Analytics · SRC{% endblock %}
+{% block page_title %}Analytics{% endblock %}
+{% block page_sub %}Backlog &amp; resolution{% endblock %}
+
+{% block content %}
+<section class="kpis">
+  <div class="kpi kpi--feature">
+    <span class="kpi__num">{{ kpis.openBacklog }}</span>
+    <span class="kpi__label">Open backlog</span>
+    <span class="kpi__delta">{{ kpis.pastWindow }} past response window</span>
+  </div>
+  <div class="kpi"><span class="kpi__num">{{ kpis.resolutionRate }}%</span><span class="kpi__label">Resolution rate</span><span class="kpi__delta">Detected matches brought to resolution</span></div>
+  <div class="kpi"><span class="kpi__num">{{ kpis.oldestPendingDays }}d</span><span class="kpi__label">Oldest open match</span><span class="kpi__delta">Longest unaddressed</span></div>
+  <div class="kpi"><span class="kpi__num">{{ counts.all }}</span><span class="kpi__label">Total matches</span><span class="kpi__delta">All time</span></div>
+</section>
+
+{{ burndown(chart) }}
+
+<section class="split">
+  <div class="panel">
+    <div class="panel__head"><div><h2>Match outcomes</h2></div></div>
+    <div class="hbars">
+      {% set tiers = {'pending':'review','cleared':'clear','rejected':'dispute','disputed':'dispute'} %}
+      {% for key, label in [('pending','Pending'),('cleared','Cleared'),('rejected','Rejected'),('disputed','Disputed')] %}
+      <div class="hbar">
+        <span class="hbar__label">{{ label }}</span>
+        <div class="hbar__track"><div class="hbar__fill" data-tier="{{ tiers[key] }}" style="width: {{ (counts[key] / counts.all * 100) | round if counts.all else 0 }}%"></div></div>
+        <span class="hbar__n">{{ counts[key] }}</span>
+      </div>
+      {% endfor %}
+    </div>
+  </div>
+
+  <div class="panel">
+    <div class="panel__head"><div><h2>By content type</h2></div></div>
+    <div class="hbars hbars--rev">
+      {% set rmax = (by_type | map(attribute='revenue') | max) or 1 %}
+      {% for c in by_type %}
+      <div class="hbar">
+        <span class="hbar__label">{{ c.label }}</span>
+        <div class="hbar__track"><div class="hbar__fill" data-tier="clear" style="width: {{ (c.revenue / rmax * 100) | round }}%"></div></div>
+        <span class="hbar__n">{{ c.revenue | moneyk }}<span class="hbar__sub">{{ c.n }} matches</span></span>
+      </div>
+      {% endfor %}
+    </div>
+  </div>
+</section>
+
+<div class="panel">
+  <div class="panel__head"><div><h2>Top claimed works</h2></div></div>
+  <div class="dtable">
+    <div class="dtable__head dtable__head--4"><span>Work</span><span>Artist</span><span>Claims</span><span>Catalog revenue</span></div>
+    {% for w in top %}
+    <div class="dtable__row dtable__row--4">
+      <span><b>{{ w.title }}</b></span><span>{{ w.artist }}</span><span>{{ w.claims }}</span><span class="num">{{ w.revenue_cents | money }}</span>
+    </div>
+    {% endfor %}
+  </div>
+</div>
+{% endblock %}

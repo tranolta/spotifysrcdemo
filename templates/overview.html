@@ -1,0 +1,83 @@
+{% extends "base.html" %}
+{% from "_macros.html" import status_pill, conf, claim_tag, burndown, arttile with context %}
+{% block title %}Overview · SRC{% endblock %}
+{% block page_title %}Overview{% endblock %}
+{% block page_sub %}Rights operations · {{ rh }}{% endblock %}
+
+{% block content %}
+<section class="kpis">
+  <a class="kpi kpi--feature" href="{{ url_for('matches') }}">
+    <span class="kpi__num">{{ kpis.openBacklog }}</span>
+    <span class="kpi__label">Open backlog</span>
+    <span class="kpi__delta">{{ kpis.pastWindow }} past response window</span>
+  </a>
+  <a class="kpi" href="{{ url_for('matches', status='pending') }}">
+    <span class="kpi__num">{{ kpis.pendingMatches }}</span>
+    <span class="kpi__label">Awaiting review</span>
+    <span class="kpi__delta">Oldest {{ kpis.oldestPendingDays }}d in queue</span>
+  </a>
+  <a class="kpi" href="{{ url_for('disputes') }}">
+    <span class="kpi__num">{{ kpis.openDisputes }}</span>
+    <span class="kpi__label">Open disputes</span>
+    <span class="kpi__delta">Casework in progress</span>
+  </a>
+  <div class="kpi">
+    <span class="kpi__num">{{ kpis.resolutionRate }}%</span>
+    <span class="kpi__label">Resolution rate</span>
+    <span class="kpi__delta">{{ kpis.assetsManaged }} works · {{ kpis.catalogRevenue | moneyk }} protected</span>
+  </div>
+</section>
+
+<section class="split">
+  <div class="panel">
+    <div class="panel__head">
+      <div><p class="u-label">Content ID</p><h2>Highest-value matches</h2></div>
+      <div class="right"><a class="hint" href="{{ url_for('matches') }}">View queue →</a></div>
+    </div>
+    <div class="queue">
+      {% for m in top_matches %}
+      <a class="qrow qrow--link" href="{{ url_for('match_detail', match_id=m.id) }}">
+        <div class="asset">
+          {{ arttile(m.upload_title, m.kind) }}
+          <div class="asset__meta">
+            <b>{{ m.upload_title }}<span class="asset__type">{{ m.content_type }}</span></b>
+            <span>matches “{{ m.asset_title }}” · {{ m.monthly_streams | compact }} plays/mo</span>
+          </div>
+        </div>
+        <div class="num">{{ m.revenue_cents | money }}</div>
+        {{ status_pill(m.status) }}
+      </a>
+      {% endfor %}
+    </div>
+  </div>
+
+  <div class="aside-stack">
+    <div class="panel">
+      <div class="panel__head"><div><h2>Disputes near SLA</h2></div></div>
+      <div class="timeline">
+        {% for d in disputes %}
+        <a class="tl-item tl-item--link" href="{{ url_for('dispute_detail', dispute_id=d.id) }}">
+          <div class="tl-item__rail"><span class="tl-item__dot is-open"></span><span class="tl-item__line"></span></div>
+          <div class="tl-item__body">
+            <b>{{ d.case_ref }} · {{ d.asset_title }}</b>
+            <p>{{ d.respondent }} · {{ d.revenue_cents | money }} at stake</p>
+            <time>{% set dl = d.sla_deadline | daysleft %}{{ 'SLA ' + dl|string + 'd' if dl is not none else 'Open' }}</time>
+          </div>
+        </a>
+        {% else %}<div class="empty">No open disputes.</div>{% endfor %}
+      </div>
+    </div>
+
+    <div class="panel">
+      <div class="panel__head"><div><h2>Activity</h2></div></div>
+      <ul class="feed">
+        {% for a in activity %}
+        <li><span class="feed__dot"></span><span>{{ a.detail }}</span><time>{{ a.ts | reltime }}</time></li>
+        {% endfor %}
+      </ul>
+    </div>
+  </div>
+</section>
+
+{{ burndown(chart) }}
+{% endblock %}

@@ -1,0 +1,96 @@
+{% macro arttile(label, kind) %}
+  {# Monogram fallback for missing cover art: deterministic color + first letter. #}
+  <span class="asset__art {{ 'is-video' if kind=='video' }}" style="--art-hue: {{ label | hue }}" aria-hidden="true">
+    <span class="asset__mono">{{ (label or '?') | first | upper }}</span>
+    {% if kind == 'video' %}
+    <svg class="asset__glyph" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M10 8.5v7l6-3.5z"/></svg>
+    {% else %}
+    <svg class="asset__glyph" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M9 17V6l9-2v9"/><circle cx="6.5" cy="17" r="2.5"/><circle cx="15.5" cy="13" r="2.5"/></svg>
+    {% endif %}
+  </span>
+{% endmacro %}
+
+{% macro status_pill(status) %}
+  {% set map = {'pending': ['review','Needs review'], 'cleared': ['clear','Cleared'],
+                'rejected': ['dispute','Rejected'], 'disputed': ['dispute','In dispute']} %}
+  {% set p = map.get(status, ['review', status]) %}
+  <span class="pill pill--{{ p[0] }}">{{ p[1] }}</span>
+{% endmacro %}
+
+{% macro priority_pill(priority) %}
+  {% set map = {'Critical':'dispute','High':'review','Medium':'clear','Low':'muted'} %}
+  <span class="tag tag--{{ map.get(priority,'muted') }}">{{ priority }}</span>
+{% endmacro %}
+
+{% macro claim_tag(claim) %}
+  {% set map = {'Monetize':'clear','Block':'dispute','Review':'review','Track':'muted'} %}
+  <span class="tag tag--{{ map.get(claim,'muted') }}">{{ claim }}</span>
+{% endmacro %}
+
+{% macro conf(pct) %}
+  <div class="conf">
+    <div class="conf__bar"><div class="conf__fill {{ 'is-low' if pct < 40 else 'is-mid' if pct < 70 else '' }}" style="width: {{ pct }}%"></div></div>
+    <span class="conf__val">{{ pct }}% match</span>
+  </div>
+{% endmacro %}
+
+{% macro sort_th(label, key, sort, dir) %}
+  {% set nd = 'asc' if (sort == key and dir == 'desc') else 'desc' %}
+  <a class="th-sort {{ 'is-active' if sort == key }}" href="{{ urlmod(sort=key, dir=nd, page=1) }}">
+    {{ label }}{% if sort == key %}<span class="th-arrow">{{ '↑' if dir == 'asc' else '↓' }}</span>{% endif %}
+  </a>
+{% endmacro %}
+
+{% macro burndown(chart) %}
+<section class="chart">
+  <div class="chart__head">
+    <div>
+      <p class="u-label">Backlog health</p>
+      <h2>Detected vs resolved</h2>
+      <p class="chart__sub">Open infringement backlog over 12 weeks · seeded history</p>
+    </div>
+    <div class="chart__legend chart__legend--toggle" role="group" aria-label="Toggle chart series">
+      <button type="button" class="legend__btn" data-series="backlog" aria-pressed="true"><i class="swatch swatch--backlog"></i>Open backlog</button>
+      <button type="button" class="legend__btn" data-series="detected" aria-pressed="true"><i class="swatch swatch--detected"></i>Detected</button>
+      <button type="button" class="legend__btn" data-series="resolved" aria-pressed="true"><i class="swatch swatch--resolved"></i>Resolved</button>
+    </div>
+  </div>
+  {% if chart %}
+  <figure class="burndown" data-chart>
+    <svg viewBox="0 0 {{ chart.w }} {{ chart.h }}" role="img"
+         aria-label="Weekly detected versus resolved matches; the open backlog falls from {{ chart.first.backlog }} to {{ chart.last.backlog }} over twelve weeks.">
+      <g data-series-g="backlog">
+        <polygon class="bd-area" points="{{ chart.area }}"/>
+        <polyline class="bd-line bd-line--backlog" points="{{ chart.backlog }}"/>
+      </g>
+      <g data-series-g="detected"><polyline class="bd-line bd-line--detected" points="{{ chart.detected }}"/></g>
+      <g data-series-g="resolved"><polyline class="bd-line bd-line--resolved" points="{{ chart.resolved }}"/></g>
+      <text class="bd-endlabel" x="{{ chart.last.x }}" y="{{ chart.last.yb - 8 }}" text-anchor="end">{{ chart.last.backlog }} open</text>
+      {% for p in chart.pts %}
+      <g class="bd-pt" data-week="{{ p.week }}" data-detected="{{ p.detected }}" data-resolved="{{ p.resolved }}" data-backlog="{{ p.backlog }}" data-x="{{ p.x }}">
+        <rect class="bd-hot" x="{{ p.hx }}" y="0" width="{{ chart.colw }}" height="{{ chart.base }}"/>
+        <line class="bd-cross" x1="{{ p.x }}" y1="0" x2="{{ p.x }}" y2="{{ chart.base }}"/>
+        <circle class="bd-dot bd-dot--backlog" cx="{{ p.x }}" cy="{{ p.yb }}" r="3"/>
+        <circle class="bd-dot bd-dot--resolved" cx="{{ p.x }}" cy="{{ p.yr }}" r="2.5"/>
+        <circle class="bd-dot bd-dot--detected" cx="{{ p.x }}" cy="{{ p.yd }}" r="2.5"/>
+        <text class="bd-xlabel" x="{{ p.x }}" y="{{ chart.h - 8 }}" text-anchor="middle">{{ p.week }}</text>
+      </g>
+      {% endfor %}
+    </svg>
+    <div class="bd-tip" hidden></div>
+  </figure>
+  {% else %}<div class="empty">No history yet.</div>{% endif %}
+</section>
+{% endmacro %}
+
+{% macro pager(page) %}
+  {% if page.pages > 1 %}
+  <div class="pager">
+    <span class="pager__info">{{ page.from }}–{{ page.to }} of {{ page.total }} · page {{ page.page }}/{{ page.pages }}</span>
+    {% if page.has_prev %}<a class="btn btn--ghost btn--sm" href="{{ urlmod(page=page.page-1) }}">Prev</a>
+    {% else %}<span class="btn btn--ghost btn--sm is-disabled">Prev</span>{% endif %}
+    {% if page.has_next %}<a class="btn btn--ghost btn--sm" href="{{ urlmod(page=page.page+1) }}">Next</a>
+    {% else %}<span class="btn btn--ghost btn--sm is-disabled">Next</span>{% endif %}
+  </div>
+  {% endif %}
+{% endmacro %}

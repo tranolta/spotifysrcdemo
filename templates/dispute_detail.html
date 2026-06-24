@@ -1,0 +1,65 @@
+{% extends "base.html" %}
+{% from "_macros.html" import priority_pill with context %}
+{% block title %}{{ d.case_ref }} · SRC{% endblock %}
+{% block page_title %}{{ d.case_ref }}{% endblock %}
+{% block page_sub %}Dispute case{% endblock %}
+
+{% block content %}
+<div class="detail-top">
+  <a class="back" href="{{ url_for('disputes') }}">← Disputes</a>
+  <a class="btn btn--green btn--sm" href="{{ url_for('respond_notice', match_id=d.match_id) }}" target="_blank" rel="noopener">Respondent notice ↗</a>
+</div>
+
+<div class="detail">
+  <div class="detail__main">
+    <div class="panel">
+      <div class="panel__head">
+        <div><p class="u-label">{{ d.priority }} priority</p><h2>{{ d.asset_title }}</h2></div>
+        <div class="right">
+          {% if d.status=='open' %}<span class="tag tag--review">Open</span>
+          {% else %}<span class="tag tag--clear">{{ d.resolution|capitalize }}</span>{% endif %}
+        </div>
+      </div>
+      <div class="kvs kvs--pad">
+        <div class="kv"><span>Claimant</span><b>{{ d.claimant }}</b></div>
+        <div class="kv"><span>Respondent</span><b>@{{ d.respondent }}</b></div>
+        <div class="kv"><span>Assigned to</span><b>{{ d.assigned_to or 'Unassigned' }}</b></div>
+        <div class="kv"><span>Opened</span><b>{{ d.opened_at | reltime }}</b></div>
+        {% if d.status=='open' %}<div class="kv"><span>SLA deadline</span><b>{{ d.sla_deadline }} ({{ d.sla_deadline | daysleft }}d)</b></div>{% endif %}
+        <div class="kv"><span>Revenue at stake</span><b>{{ d.revenue_cents | money }}/mo</b></div>
+      </div>
+      <div class="reason">
+        <p class="u-label">Reason</p>
+        <p>{{ d.reason }}</p>
+      </div>
+    </div>
+
+    {% if d.status == 'open' %}
+    <div class="panel actions-panel">
+      <div class="panel__head"><div><h2>Resolve case</h2></div></div>
+      <div class="actions-row">
+        <form method="post" action="{{ url_for('dispute_resolve', dispute_id=d.id) }}">
+          <button class="btn btn--green" name="resolution" value="upheld" type="submit">Uphold claim</button>
+        </form>
+        <form method="post" action="{{ url_for('dispute_resolve', dispute_id=d.id) }}">
+          <button class="btn btn--ghost" name="resolution" value="withdrawn" type="submit">Withdraw claim</button>
+        </form>
+        <p class="hint">Uphold → match cleared. Withdraw → match rejected.</p>
+      </div>
+    </div>
+    {% endif %}
+  </div>
+
+  <div class="detail__side">
+    <div class="panel">
+      <div class="panel__head"><div><p class="u-label">Disputed match</p><h2>{{ d.match_pct }}% · {{ d.content_type }}</h2></div></div>
+      <div class="kvs kvs--pad">
+        <div class="kv"><span>Upload</span><b>{{ d.upload_title }}</b></div>
+        <div class="kv"><span>Artist</span><b>{{ d.asset_artist }}</b></div>
+        <div class="kv"><span>ISRC</span><b class="mono">{{ d.asset_isrc }}</b></div>
+        <div class="kv"><span>Match</span><b><a href="{{ url_for('match_detail', match_id=d.match_id) }}">#{{ d.match_id }} →</a></b></div>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

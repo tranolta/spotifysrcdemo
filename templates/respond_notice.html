@@ -1,0 +1,32 @@
+{% extends "respond_base.html" %}
+{% block title %}Third-party content found · Spotify{% endblock %}
+
+{% block content %}
+<h1 class="respond__h1">We found some third-party content in your upload.</h1>
+<p class="respond__lead">Please review before the window closes. Otherwise, we will assume that you
+have a license and will get in touch with the relevant rights holders to double-check.</p>
+
+<hr class="respond__rule">
+
+<div class="respond__row">
+  <p class="respond__eyebrow">Upload</p>
+  <p class="respond__value">{{ m.upload_title }}</p>
+</div>
+
+<hr class="respond__rule">
+
+<div class="respond__row">
+  <p class="respond__eyebrow">Flagged content · claim by {{ rh }}</p>
+  <p class="respond__value">{{ m.asset_title }}</p>
+  <p class="respond__by">{{ m.asset_artist }} · ISRC {{ m.asset_isrc }} ·
+    <a class="respond__link" href="https://open.spotify.com/track/{{ m.asset_spotify_id }}" target="_blank" rel="noopener">Listen on Spotify ↗</a></p>
+</div>
+
+<div class="respond__cta">
+  <p class="countdown">
+    {% if hours is not none %}<b>{{ hours }} hours left</b> to review this upload
+    {% else %}<b>Review window open</b>{% endif %}
+  </p>
+  <a class="btn btn--green btn--lg" href="{{ url_for('respond_review', match_id=m.id) }}">Review upload</a>
+</div>
+{% endblock %}

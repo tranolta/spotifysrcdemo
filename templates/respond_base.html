@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>{% block title %}Spotify — content review{% endblock %}</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Hanken+Grotesk:wght@400;500;600;800&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="{{ url_for('static_files', filename='styles.css') }}" />
+</head>
+<body class="respond-page">
+  <header class="respond-top">
+    <span class="respond-top__brand">
+      <img class="respond-top__logo" src="{{ url_for('static_files', filename='spotify-logo-black.svg') }}" alt="Spotify" width="92" height="25" />
+      <b>for Creators</b>
+    </span>
+    <span class="respond-top__demo">Demo · simulated notice</span>
+  </header>
+
+  <main class="respond">
+    {% block content %}{% endblock %}
+  </main>
+
+  <div class="flashes" aria-live="polite">
+    {% for category, msg in get_flashed_messages(with_categories=true) %}
+      <div class="toast toast--{{ category }}">{{ msg }}</div>
+    {% endfor %}
+  </div>
+</body>
+</html>

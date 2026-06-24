@@ -1,0 +1,40 @@
+{% extends "base.html" %}
+{% from "_macros.html" import claim_tag with context %}
+{% block title %}Policies · SRC{% endblock %}
+{% block page_title %}Enforcement policies{% endblock %}
+{% block page_sub %}Applied in priority order{% endblock %}
+
+{% block content %}
+<div class="panel">
+  <div class="policy">
+    {% for p in policies %}
+    <div class="policy__item">
+      <span class="policy__rank">{{ p.priority }}</span>
+      <div class="policy__txt">
+        <b>{{ p.label }}</b>
+        <span>{{ p.descr }}</span>
+        <div class="policy__tags">
+          <span class="tag tag--muted">{{ p.scope }}</span>
+          {{ claim_tag(p.action) }}
+          <span class="tag tag--muted">{{ p.territories }}</span>
+        </div>
+      </div>
+
+      {% if p.threshold is not none %}
+      <form class="thresh" method="post" action="{{ url_for('policy_update', policy_id=p.id) }}" onchange="this.submit()">
+        ≥ <input class="thresh__in" type="number" name="threshold" min="0" max="100" value="{{ p.threshold }}" aria-label="{{ p.label }} threshold"> %
+      </form>
+      {% endif %}
+
+      <form method="post" action="{{ url_for('policy_update', policy_id=p.id) }}" onchange="this.submit()">
+        <input type="hidden" name="toggle" value="1">
+        <label class="switch">
+          <input type="checkbox" name="enabled" {{ 'checked' if p.enabled }} aria-label="Enable {{ p.label }}">
+          <span></span>
+        </label>
+      </form>
+    </div>
+    {% endfor %}
+  </div>
+</div>
+{% endblock %}

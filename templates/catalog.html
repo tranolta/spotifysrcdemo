@@ -1,0 +1,73 @@
+{% extends "base.html" %}
+{% from "_macros.html" import sort_th, pager, arttile with context %}
+{% block title %}Reference catalog · SRC{% endblock %}
+{% block page_title %}Reference catalog{% endblock %}
+{% block page_sub %}Works you control{% endblock %}
+
+{% block topbar_actions %}
+<form class="search" method="get" action="{{ url_for('catalog') }}">
+  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4.3-4.3"/></svg>
+  <label class="u-sr" for="q">Filter catalog</label>
+  <input id="q" type="search" name="q" value="{{ q }}" placeholder="Search title, artist, ISRC…">
+</form>
+<button class="btn btn--green" type="button" data-open="asset-modal">
+  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" aria-hidden="true"><path d="M12 5v14M5 12h14"/></svg>
+  Register asset
+</button>
+{% endblock %}
+
+{% block content %}
+<div class="panel">
+  <div class="rtable rtable--catalog">
+    <div class="rtable__head">
+      <span>{{ sort_th('Work','title',sort,dir) }}</span>
+      <span>{{ sort_th('ISRC','isrc',sort,dir) }}</span>
+      <span>Rights</span>
+      <span>Territory</span>
+      <span>{{ sort_th('Claims','claims',sort,dir) }}</span>
+      <span>{{ sort_th('Revenue','revenue',sort,dir) }}</span>
+      <span>{{ sort_th('Released','released',sort,dir) }}</span>
+    </div>
+    {% for a in assets %}
+    <div class="rtable__row">
+      <div class="asset">
+        {{ arttile(a.title, a.kind) }}
+        <span class="asset__meta"><b>{{ a.title }}</b><span>{{ a.artist }}</span></span>
+      </div>
+      <div class="cell-sub"><a class="mono mono--link" href="https://open.spotify.com/track/{{ a.spotify_id }}" target="_blank" rel="noopener">{{ a.isrc }} ↗</a><span class="muted-sm">{{ a.iswc or 'no ISWC' }}</span></div>
+      <div class="cell-sub"><b>{{ a.rights_type }}</b><span class="muted-sm">{{ a.ownership_pct }}% owned</span></div>
+      <div>{{ a.markets | territory }}</div>
+      <div class="num">{{ a.claims }}</div>
+      <div class="num">{{ a.revenue_cents | money }}</div>
+      <div class="muted-sm">{{ a.release_date }}</div>
+    </div>
+    {% else %}
+    <div class="empty">No assets{{ ' for “' + q + '”' if q }}.</div>
+    {% endfor %}
+  </div>
+  {{ pager(page) }}
+</div>
+
+<div class="modal-wrap" id="asset-modal" hidden>
+  <div class="scrim" data-close></div>
+  <div class="modal">
+    <div class="modal__head">
+      <h2>Register reference asset</h2>
+      <button class="icon-btn" type="button" data-close aria-label="Close"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 6l12 12M18 6L6 18"/></svg></button>
+    </div>
+    <form class="form" method="post" action="{{ url_for('catalog_create') }}">
+      <label class="field"><span>Title</span><input class="in" name="title" required autocomplete="off"></label>
+      <label class="field"><span>Artist</span><input class="in" name="artist" required autocomplete="off"></label>
+      <div class="field-row">
+        <label class="field"><span>Type</span><select class="in" name="kind"><option value="audio">Audio</option><option value="video">Video</option></select></label>
+        <label class="field"><span>Rights</span><select class="in" name="rights_type"><option>Master</option><option>Publishing</option><option>Master + Publishing</option></select></label>
+      </div>
+      <label class="field"><span>Markets (0–200)</span><input class="in" name="markets" type="number" min="0" max="200" value="184"></label>
+      <div class="modal__foot">
+        <button class="btn btn--ghost" type="button" data-close>Cancel</button>
+        <button class="btn btn--green" type="submit">Register</button>
+      </div>
+    </form>
+  </div>
+</div>
+{% endblock %}

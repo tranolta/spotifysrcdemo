@@ -1,0 +1,88 @@
+{% extends "base.html" %}
+{% from "_macros.html" import status_pill, conf, claim_tag, sort_th, pager, arttile with context %}
+{% block title %}Match queue · SRC{% endblock %}
+{% block page_title %}Match queue{% endblock %}
+{% block page_sub %}Content ID detections{% endblock %}
+
+{% block topbar_actions %}
+<form class="search" method="get" action="{{ url_for('matches') }}">
+  {% if status %}<input type="hidden" name="status" value="{{ status }}">{% endif %}
+  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4.3-4.3"/></svg>
+  <label class="u-sr" for="q">Filter matches</label>
+  <input id="q" type="search" name="q" value="{{ q }}" placeholder="Search title, ISRC, uploader…">
+</form>
+{% endblock %}
+
+{% block content %}
+{% set tabs = [(none,'All',counts.all),('pending','Pending',counts.pending),('cleared','Cleared',counts.cleared),('rejected','Rejected',counts.rejected),('disputed','Disputed',counts.disputed)] %}
+<div class="tabs-row">
+  <div class="tabs">
+    {% for key, label, n in tabs %}
+    <a class="tab {{ 'is-active' if status == key }}" href="{{ url_for('matches', status=key, q=q or none, sort=sort, dir=dir) }}">
+      {{ label }}<span class="tab__n">{{ n }}</span>
+    </a>
+    {% endfor %}
+  </div>
+</div>
+
+<div class="panel">
+  <form id="bulkform" method="post" action="{{ url_for('matches_bulk') }}">
+    <input type="hidden" name="next" value="{{ request.full_path }}">
+  </form>
+
+  <div class="toolbar">
+    <label class="toolbar__all"><input class="check" type="checkbox" id="selectall"> Select page</label>
+    <div class="bulkbar" id="bulkbar" hidden>
+      <span id="bulk-count">0 selected</span>
+      <button class="btn btn--sm btn--green" form="bulkform" name="action" value="approve" type="submit">Approve</button>
+      <button class="btn btn--sm btn--danger" form="bulkform" name="action" value="reject" type="submit"
+              data-confirm="Reject the selected match(es)? This marks them rejected.">Reject</button>
+    </div>
+  </div>
+
+  <div class="rtable">
+    <div class="rtable__head">
+      <span></span>
+      <span>Upload</span>
+      <span>Matched work</span>
+      <span>{{ sort_th('Confidence','confidence',sort,dir) }}</span>
+      <span>{{ sort_th('Revenue/mo','revenue',sort,dir) }}</span>
+      <span>Claim</span>
+      <span>Status</span>
+      <span></span>
+    </div>
+    {% for m in matches %}
+    <div class="rtable__row">
+      <span>{% if m.status == 'pending' %}<input class="check row-check" type="checkbox" name="ids" value="{{ m.id }}" form="bulkform" aria-label="Select">{% endif %}</span>
+      <a class="asset" href="{{ url_for('match_detail', match_id=m.id) }}">
+        {{ arttile(m.upload_title, m.kind) }}
+        <span class="asset__meta">
+          <b>{{ m.upload_title }}</b>
+          <span>{{ m.source }} · @{{ m.uploader }}</span>
+        </span>
+      </a>
+      <div class="cell-sub"><b>{{ m.asset_title }}</b><span class="mono">{{ m.asset_isrc }}</span></div>
+      <div>{{ conf(m.match_pct) }}<span class="muted-sm">{{ m.markets | territory }}</span></div>
+      <div class="num">{{ m.revenue_cents | money }}<span class="muted-sm">{{ m.monthly_streams | compact }} plays</span></div>
+      <div>{{ claim_tag(m.claim_type) }}</div>
+      <div>{{ status_pill(m.status) }}</div>
+      <div class="rowact">
+        {% if m.status == 'pending' %}
+          <form method="post" action="{{ url_for('match_action', match_id=m.id) }}">
+            <input type="hidden" name="next" value="{{ request.full_path }}">
+            <button class="icon-btn icon-btn--ok" name="action" value="approve" aria-label="Approve" type="submit"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M5 13l4 4L19 7"/></svg></button>
+            <button class="icon-btn icon-btn--no" name="action" value="reject" aria-label="Reject" type="submit"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M6 6l12 12M18 6L6 18"/></svg></button>
+            <button class="icon-btn" name="action" value="dispute" aria-label="Dispute" type="submit"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 21V4h13l-2 4 2 4H4"/></svg></button>
+          </form>
+        {% else %}
+          <a class="icon-btn" href="{{ url_for('match_detail', match_id=m.id) }}" aria-label="View"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M2 12s3.5-7 10-7 10 7 10 7-3.5 7-10 7-10-7-10-7z"/></svg></a>
+        {% endif %}
+      </div>
+    </div>
+    {% else %}
+    <div class="empty">No matches{{ ' for “' + q + '”' if q }}.</div>
+    {% endfor %}
+  </div>
+  {{ pager(page) }}
+</div>
+{% endblock %}

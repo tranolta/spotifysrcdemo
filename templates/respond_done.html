@@ -1,0 +1,24 @@
+{% extends "respond_base.html" %}
+{% block title %}Response recorded · Spotify{% endblock %}
+
+{% block content %}
+{% set msgs = {
+  'license': 'Thanks. We’ll review your license with the rights holder. Your upload stays live while the claim is in dispute.',
+  'exception': 'Thanks. We’ve logged your copyright-exception claim for manual review. Your upload stays live while the claim is in dispute.',
+  'never': 'Thanks. We’ll re-scan your upload and get back to you. The claim is now in dispute.',
+  'unpublish': 'Your upload has been unpublished. Publish a new version with no third-party content to go live again.'
+} %}
+<h1 class="respond__h1 respond__h1--sm">Thanks — your response is recorded.</h1>
+<p class="respond__lead">{{ msgs.get(outcome.choice, 'Your response has been recorded.') }}</p>
+
+<hr class="respond__rule">
+<div class="respond__row">
+  <p class="respond__eyebrow">Upload</p>
+  <p class="respond__value">{{ m.upload_title }}</p>
+  <p class="respond__by">Status: {{ 'In dispute' if outcome.status == 'disputed' else 'Resolved' }}</p>
+</div>
+
+<div class="respond__cta">
+  <a class="btn btn--green btn--lg" href="{{ url_for('respond_notice', match_id=m.id) }}">Back to notice</a>
+</div>
+{% endblock %}

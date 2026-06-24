@@ -1,0 +1,54 @@
+{% extends "respond_base.html" %}
+{% block title %}Review upload · Spotify{% endblock %}
+
+{% block content %}
+<h1 class="respond__h1 respond__h1--sm">We found some third-party content in your upload.</h1>
+<p class="respond__lead">Please review before the form closes. Otherwise, we will assume that you have a
+license and will get in touch with the relevant rights holders to double-check.</p>
+
+<div class="respond__step">
+  <span class="respond__eyebrow">Your response</span>
+  <span class="respond__eyebrow">Step 1 / 1</span>
+</div>
+<div class="respond__progress"></div>
+
+<div class="respond__summary">
+  <p><span>Please review the following upload:</span> <b>{{ m.upload_title }}</b></p>
+  <p><span>And its usage of the following content:</span> <b>{{ m.asset_title }} by {{ m.asset_artist }}</b>
+    <a class="respond__link" href="https://open.spotify.com/track/{{ m.asset_spotify_id }}" target="_blank" rel="noopener">↗ Spotify</a></p>
+  <p><span>This claim is made by:</span> <b>{{ rh }}</b></p>
+</div>
+
+<form class="respond-form" method="post" action="{{ url_for('respond_submit', match_id=m.id) }}">
+  <fieldset class="optset">
+    <legend class="u-sr">Choose one</legend>
+
+    <div class="optrow">
+      <p class="optrow__desc">The above content in my upload was directly licensed with the copyright owner.</p>
+      <label class="optrow__pick"><input type="radio" name="choice" value="license"> <span>I have a license.</span></label>
+    </div>
+    <div class="optrow">
+      <p class="optrow__desc">The above content constitutes quotation, criticism, review, parody, caricature, pastiche, or other legal copyright exception.</p>
+      <label class="optrow__pick"><input type="radio" name="choice" value="exception"> <span>I am allowed to include this content.</span></label>
+    </div>
+    <div class="optrow">
+      <p class="optrow__desc">The above content is not being used, so I would like my upload to be reviewed again.</p>
+      <label class="optrow__pick"><input type="radio" name="choice" value="never"> <span>This content has never been in my upload.</span></label>
+    </div>
+  </fieldset>
+
+  <fieldset class="optset optset--alt">
+    <legend class="optset__head">If none of the above are selected,</legend>
+    <div class="optrow">
+      <p class="optrow__desc">The entire upload will be unpublished on Spotify. If you would like it active again,
+        please publish a new upload with no third-party content.</p>
+      <label class="optrow__pick"><input type="radio" name="choice" value="unpublish"> <span>Unpublish, and I’ll fix it myself.</span></label>
+    </div>
+  </fieldset>
+
+  <div class="respond-form__foot">
+    <a class="respond__back" href="{{ url_for('respond_notice', match_id=m.id) }}">Go back</a>
+    <button class="btn btn--green btn--lg" type="submit">Submit upload</button>
+  </div>
+</form>
+{% endblock %}

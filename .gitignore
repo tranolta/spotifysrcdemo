@@ -1,0 +1,24 @@
+# Secrets — never commit
+.env
+.env.local
+*.env
+
+# Local database (seeded at runtime)
+src.db
+
+# Python
+__pycache__/
+*.py[cod]
+.venv/
+venv/
+
+# IDE
+.idea/
+
+# Tooling / local
+.pytest_cache/
+.hallmark/
+.claude/
+
+# Unused brand-asset originals (app uses root SVGs only)
+2024-spotify-full-logo/

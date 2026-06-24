@@ -1,0 +1,44 @@
+{% extends "base.html" %}
+{% from "_macros.html" import priority_pill, status_pill with context %}
+{% block title %}Disputes · SRC{% endblock %}
+{% block page_title %}Disputes{% endblock %}
+{% block page_sub %}Resolution workflow{% endblock %}
+
+{% block content %}
+<div class="tabs-row">
+  <div class="tabs">
+    <a class="tab {{ 'is-active' if not status }}" href="{{ url_for('disputes') }}">All</a>
+    <a class="tab {{ 'is-active' if status=='open' }}" href="{{ url_for('disputes', status='open') }}">Open</a>
+    <a class="tab {{ 'is-active' if status=='resolved' }}" href="{{ url_for('disputes', status='resolved') }}">Resolved</a>
+  </div>
+</div>
+
+<div class="panel">
+  <div class="rtable rtable--disputes">
+    <div class="rtable__head">
+      <span>Case</span><span>Work</span><span>Respondent</span><span>Priority</span>
+      <span>At stake</span><span>SLA</span><span>Status</span><span></span>
+    </div>
+    {% for d in disputes %}
+    <div class="rtable__row">
+      <a class="cell-sub" href="{{ url_for('dispute_detail', dispute_id=d.id) }}">
+        <b class="mono">{{ d.case_ref }}</b><span>{{ d.opened_at | reltime }}</span>
+      </a>
+      <div class="cell-sub"><b>{{ d.asset_title }}</b><span>{{ d.upload_title }}</span></div>
+      <div>@{{ d.respondent }}</div>
+      <div>{{ priority_pill(d.priority) }}</div>
+      <div class="num">{{ d.revenue_cents | money }}</div>
+      <div>
+        {% if d.status == 'open' %}{% set dl = d.sla_deadline | daysleft %}
+          <span class="sla {{ 'sla--late' if dl is not none and dl < 2 }}">{{ dl }}d left</span>
+        {% else %}<span class="muted-sm">—</span>{% endif %}
+      </div>
+      <div>{% if d.status=='open' %}<span class="tag tag--review">Open</span>{% else %}<span class="tag tag--clear">{{ d.resolution|capitalize }}</span>{% endif %}</div>
+      <div class="rowact"><a class="btn btn--ghost btn--sm" href="{{ url_for('dispute_detail', dispute_id=d.id) }}">Review</a></div>
+    </div>
+    {% else %}
+    <div class="empty">No disputes on record.</div>
+    {% endfor %}
+  </div>
+</div>
+{% endblock %}

@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>{% block title %}Spotify Rights Center{% endblock %}</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Hanken+Grotesk:wght@400;500;600;800&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="{{ url_for('static_files', filename='styles.css') }}" />
+</head>
+<body>
+  <div class="app" id="app">
+    <aside class="side" aria-label="Primary">
+      <a class="brand" href="{{ url_for('overview') }}">
+        <img class="brand__logo" src="{{ url_for('static_files', filename='spotify-logo-white.svg') }}" alt="Spotify" width="96" height="26" />
+        <span class="brand__tag">Rights Center</span>
+      </a>
+
+      {% set items = [
+        ('overview', 'overview', 'Overview', 'M3 3h7v9H3zM14 3h7v5h-7zM14 12h7v9h-7zM3 16h7v5H3z'),
+        ('matches', 'matches', 'Match queue', None),
+        ('disputes', 'disputes', 'Disputes', None),
+        ('catalog', 'catalog', 'Reference catalog', None)
+      ] %}
+      <nav class="nav-group">
+        <p class="nav-group__head">Operate</p>
+        <a class="nav-link" href="{{ url_for('overview') }}" {% if active=='overview' %}aria-current="page"{% endif %}>
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="9" rx="1.5"/><rect x="14" y="3" width="7" height="5" rx="1.5"/><rect x="14" y="12" width="7" height="9" rx="1.5"/><rect x="3" y="16" width="7" height="5" rx="1.5"/></svg>
+          Overview
+        </a>
+        <a class="nav-link" href="{{ url_for('matches') }}" {% if active=='matches' %}aria-current="page"{% endif %}>
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4.3-4.3"/></svg>
+          Match queue {% if nav.pending %}<span class="badge">{{ nav.pending }}</span>{% endif %}
+        </a>
+        <a class="nav-link" href="{{ url_for('disputes') }}" {% if active=='disputes' %}aria-current="page"{% endif %}>
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z"/></svg>
+          Disputes {% if nav.disputes %}<span class="badge">{{ nav.disputes }}</span>{% endif %}
+        </a>
+        <a class="nav-link" href="{{ url_for('catalog') }}" {% if active=='catalog' %}aria-current="page"{% endif %}>
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 18V5l12-2v13"/><circle cx="6" cy="18" r="3"/><circle cx="18" cy="16" r="3"/></svg>
+          Reference catalog
+        </a>
+      </nav>
+      <nav class="nav-group">
+        <p class="nav-group__head">Configure</p>
+        <a class="nav-link" href="{{ url_for('policies') }}" {% if active=='policies' %}aria-current="page"{% endif %}>
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 3l8 4v5c0 5-3.4 8-8 9-4.6-1-8-4-8-9V7z"/></svg>
+          Policies
+        </a>
+        <a class="nav-link" href="{{ url_for('analytics') }}" {% if active=='analytics' %}aria-current="page"{% endif %}>
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 19V5M4 19h16M8 16l3-4 3 2 4-6"/></svg>
+          Analytics
+        </a>
+      </nav>
+
+      <div class="side__foot">
+        <div class="user">
+          <span class="avatar" aria-hidden="true">MM</span>
+          <span class="user__meta"><b>{{ rh }}</b><span>Rights administrator</span></span>
+        </div>
+      </div>
+    </aside>
+
+    <div class="work">
+      <header class="topbar">
+        <button class="menu-btn" type="button" aria-label="Open navigation"
+                onclick="document.getElementById('app').classList.toggle('nav-open')">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 6h16M4 12h16M4 18h16"/></svg>
+        </button>
+        <h1 class="topbar__title">{% block page_title %}{% endblock %}<small>{% block page_sub %}{% endblock %}</small></h1>
+        <span class="demo-badge" title="Simulated sample data for a fictional rightsholder. Not real Spotify data.">Demo · simulated data</span>
+        {% block topbar_actions %}{% endblock %}
+      </header>
+
+      <main class="main">
+        {% block content %}{% endblock %}
+      </main>
+
+      <footer class="foot">
+        <span>Spotify Rights Center</span><span class="sep">·</span>
+        <span>Simulated demo</span>
+        <span class="foot__right">Seeded sample data · not affiliated with Spotify</span>
+      </footer>
+    </div>
+  </div>
+
+  <div class="flashes" aria-live="polite">
+    {% for category, msg in get_flashed_messages(with_categories=true) %}
+      <div class="toast toast--{{ category }}">{{ msg }}</div>
+    {% endfor %}
+  </div>
+
+  <script src="{{ url_for('static_files', filename='app.js') }}" defer></script>
+  {% block scripts %}{% endblock %}
+</body>
+</html>

@@ -1,18 +1,9 @@
 # Spotify Rights Center (SRC) — simulated rights platform
 
-A self-contained, **functional** rights-management tool modeled on Spotify's
-internal "SRC" (a YouTube Content-ID equivalent): a content-match queue,
-dispute workflow, enforcement policies, a reference catalog, and analytics.
-
-> **This is a simulation.** The public Spotify Web API exposes **no** rights /
-> Content-ID endpoints, so none of this is real Spotify data. It runs on a local
-> SQLite database seeded with fictional data for a made-up rightsholder
-> ("Meridian Music Group") and is clearly badged **Demo · simulated data** in the
-> UI. What's real is the *behavior*: actions persist.
 
 ## What actually works
 
-A genuine **multi-page** app — each nav item is a real URL with a
+A genuine **multi-page** app — each nav item is a URL with a
 server-rendered page. Filtering, sorting, and pagination are URL params;
 actions are HTML form posts that mutate SQLite and redirect back.
 
